@@ -57,16 +57,22 @@ function createPlayer(options) {
     return $player;
 };
 
+function randomizer() {
+    const damage = Math.ceil(Math.random() * 20);
+    
+    return damage;
+}
+
 function changeHP(player) {
     const $playerLife = document.querySelector('.player'+ player.player +' .life');
-    player.hp -= 20;
-    console.log(player.hp)
+    player.hp -= randomizer();
     $playerLife.style.width = player.hp + '%';
-    $playerLife.innerHTML = player.hp;
+    $playerLife.innerText = player.hp;
+    $playerLife.style.textAlign = 'right';
 
-    if(player.hp < 0) {
+    if(player.hp <= 0) {
         player.hp = 0;
-        $playerLife.innerHTML = player.hp;
+        $playerLife.innerText = player.hp;
         $arenas.appendChild(playerLose(player.name));
     }
 }
@@ -80,7 +86,7 @@ function playerLose(name) {
 
 $randomButton.addEventListener('click', function() {
     changeHP(player1);
-    // changeHP(player2);
+    changeHP(player2);
 });
 
 $arenas.appendChild(createPlayer(player1));
