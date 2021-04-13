@@ -57,36 +57,62 @@ function createPlayer(options) {
     return $player;
 };
 
-function randomizer() {
+function randomDamage() {
     const damage = Math.ceil(Math.random() * 20);
     
     return damage;
 }
 
-function changeHP(player) {
-    const $playerLife = document.querySelector('.player'+ player.player +' .life');
-    player.hp -= randomizer();
-    $playerLife.style.width = player.hp + '%';
-    $playerLife.innerText = player.hp;
-    $playerLife.style.textAlign = 'right';
+function changeHP(damage) {
+    
+    player.hp -= damage;
 
     if(player.hp <= 0) {
         player.hp = 0;
         $playerLife.innerText = player.hp;
-        $arenas.appendChild(playerLose(player.name));
     }
+
 }
 
-function playerLose(name) {
+function elHP() {
+    const $playerLife = document.querySelector('.player'+ this.player +' .life');
+     return $playerLife;
+}
+
+function renderHP() {
+    $playerLife.style.width = player.hp + '%';
+    $playerLife.innerText = player.hp;
+    $playerLife.style.textAlign = 'right';
+
+}
+
+function playerWins(name) {
     const $loseTitle = createElement('div', 'loseTitle');
-    $loseTitle.innerText = name + ' lose';
+
+    if(name) {
+        $loseTitle.innerText = name + ' wins';
+    } else {
+        $loseTitle.innerText = 'draw';
+    }
 
     return $loseTitle;
 }
 
 $randomButton.addEventListener('click', function() {
-    changeHP(player1);
+    changeHP(randomDamage());
     changeHP(player2);
+
+    if(player1.hp === 0 || player2.hp === 0 ) {
+        $randomButton.disabled = true;
+    }
+
+    if(player1.hp === 0 && player1.hp < player2.hp) {
+        $arenas.appendChild(playerWins(player2.name));
+    } else if(player2.hp === 0 && player2.hp < player1.hp) {
+        $arenas.appendChild(playerWins(player1.name));
+    } else if (player2.hp === 0 && player1.hp === 0) {
+        $arenas.appendChild(playerWins());
+    }
 });
 
 $arenas.appendChild(createPlayer(player1));
