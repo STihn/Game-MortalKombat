@@ -10,7 +10,10 @@ const player1 = {
     weapon: ['gun', 'knife'],
     attack: function() {
         console.log(`${player1.name} fight...`);
-    }
+    },
+    changeHP: changeHP,
+    elHP: elHP,
+    renderHP: renderHP
 };
 
 const player2 = {
@@ -21,7 +24,10 @@ const player2 = {
     weapon: ['gun', 'knife', 'nunchucks'],
     attack: function() {
         console.log(`${player1.name} fight...`);
-    }
+    },
+    changeHP: changeHP,
+    elHP: elHP,
+    renderHP: renderHP
 };
 
 function createElement(tag, className) {
@@ -63,25 +69,26 @@ function randomDamage() {
     return damage;
 }
 
-function changeHP(damage) {
-    
-    player.hp -= damage;
-
-    if(player.hp <= 0) {
-        player.hp = 0;
-        $playerLife.innerText = player.hp;
+function changeHP() {
+    const $playerLife = document.querySelector('.player'+ this.player +' .life');
+    this.hp -= randomDamage();
+    this.renderHP();
+    if(this.hp <= 0) {
+        this.hp = 0;
+        $playerLife.innerText = this.hp;
     }
 
 }
 
 function elHP() {
     const $playerLife = document.querySelector('.player'+ this.player +' .life');
-     return $playerLife;
+    return $playerLife;
 }
 
 function renderHP() {
-    $playerLife.style.width = player.hp + '%';
-    $playerLife.innerText = player.hp;
+    const $playerLife = this.elHP();
+    $playerLife.style.width = this.hp + '%';
+    $playerLife.innerText = this.hp;
     $playerLife.style.textAlign = 'right';
 
 }
@@ -99,8 +106,8 @@ function playerWins(name) {
 }
 
 $randomButton.addEventListener('click', function() {
-    changeHP(randomDamage());
-    changeHP(player2);
+    player1.changeHP();
+    player2.changeHP();
 
     if(player1.hp === 0 || player2.hp === 0 ) {
         $randomButton.disabled = true;
