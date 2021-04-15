@@ -1,6 +1,7 @@
 
-    const $arenas = document.querySelector('.arenas');
-    const $randomButton = document.querySelector('.button');
+const $arenas = document.querySelector('.arenas');
+const $randomButton = document.querySelector('.button');
+const $form = document.querySelector('.form');
 
 const player1 = {
     player: 1,
@@ -29,6 +30,13 @@ const player2 = {
     elHP: elHP,
     renderHP: renderHP
 };
+
+const HIT = {
+    head: 30,
+    body: 25,
+    foot: 20,
+}
+const ATTACK = ['head', 'body', 'foot'];
 
 function createElement(tag, className) {
     $tag = document.createElement(tag);
@@ -142,6 +150,15 @@ function renderReloadButton() {
         window.location.reload();
     })
 }
+
+function enemyAttack() {
+    const hit;
+    const defence;
+}
+
+$form.addEventListener('submit', function(event) {
+    event.preventDefault();
+})
 
 $arenas.appendChild(createPlayer(player1));
 $arenas.appendChild(createPlayer(player2));
