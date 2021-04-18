@@ -1,6 +1,7 @@
 
-    const $arenas = document.querySelector('.arenas');
-    const $randomButton = document.querySelector('.button');
+const $arenas = document.querySelector('.arenas');
+const $randomButton = document.querySelector('.button');
+const $form = document.querySelector('.control');
 
 const player1 = {
     player: 1,
@@ -11,9 +12,9 @@ const player1 = {
     attack: function() {
         console.log(`${player1.name} fight...`);
     },
-    changeHP: changeHP,
-    elHP: elHP,
-    renderHP: renderHP
+    changeHP,
+    elHP,
+    renderHP
 };
 
 const player2 = {
@@ -25,10 +26,17 @@ const player2 = {
     attack: function() {
         console.log(`${player1.name} fight...`);
     },
-    changeHP: changeHP,
-    elHP: elHP,
-    renderHP: renderHP
+    changeHP,
+    elHP,
+    renderHP
 };
+
+const HIT = {
+    head: 30,
+    body: 25,
+    foot: 20,
+}
+const ATTACK = ['head', 'body', 'foot'];
 
 function createElement(tag, className) {
     $tag = document.createElement(tag);
@@ -63,15 +71,15 @@ function createPlayer(options) {
     return $player;
 };
 
-function randomDamage() {
-    const damage = Math.ceil(Math.random() * 20);
+function randomDamage(num) {
+    const damage = Math.ceil(Math.random() * num);
     
     return damage;
 }
 
-function changeHP() {
+function changeHP(damage) {
     const $playerLife = document.querySelector('.player'+ this.player +' .life');
-    this.hp -= randomDamage();
+    this.hp -= damage;
     this.renderHP();
     if(this.hp <= 0) {
         this.hp = 0;
@@ -110,38 +118,72 @@ function createReloadButton() {
     const $reloadButton = createElement('button', 'button-restart');
 
     $reloadButton.innerText = 'Restart';
+
     $reloadWrap.appendChild($reloadButton);
-    
-    return $reloadWrap;
-}
+    $arenas.appendChild($reloadWrap);
 
-$randomButton.addEventListener('click', function() {
-    player1.changeHP();
-    player2.changeHP();
-
-    if(player1.hp === 0 || player2.hp === 0 ) {
-        $randomButton.disabled = true;
-    }
-
-    if(player1.hp === 0 && player1.hp < player2.hp) {
-        $arenas.appendChild(playerWins(player2.name));
-        renderReloadButton();
-    } else if(player2.hp === 0 && player2.hp < player1.hp) {
-        $arenas.appendChild(playerWins(player1.name));
-        renderReloadButton();
-    } else if (player2.hp === 0 && player1.hp === 0) {
-        $arenas.appendChild(playerWins());
-        renderReloadButton();
-    }
-});
-
-function renderReloadButton() {
-    $arenas.appendChild(createReloadButton());
     const $restartButton = document.querySelector('.button-restart');
+
     $restartButton.addEventListener('click', function() {
         window.location.reload();
     })
 }
+
+function result() {
+    if(player1.hp === 0 || player2.hp === 0 ) {
+        $randomButton.disabled = true;
+        createReloadButton();
+    }
+
+    if(player1.hp === 0 && player1.hp < player2.hp) {
+        $arenas.appendChild(playerWins(player2.name));
+    } else if(player2.hp === 0 && player2.hp < player1.hp) {
+        $arenas.appendChild(playerWins(player1.name));
+    } else if (player2.hp === 0 && player1.hp === 0) {
+        $arenas.appendChild(playerWins());
+    }
+};
+
+
+function enemyAttack() {
+    const hit = ATTACK[randomDamage(3)-1];
+    const defence = ATTACK[randomDamage(3)-1];
+
+    return {
+        value: randomDamage(HIT[hit]),
+        hit,
+        defence
+
+    }
+}
+
+$form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const enemy = enemyAttack();
+    const attack = {};
+
+    for(let item of $form) {
+        if(item.checked && item.name === 'hit') {
+            attack.value = randomDamage(HIT[item.value]);
+            attack.hit = item.value;
+        }
+
+        if(item.checked && item.name === 'defence') {
+            attack.defence =  item.value;
+        }
+        item.checked = false;
+    }
+    
+    if(attack.hit !== enemy.defence) {
+        player1.changeHP(attack.value);
+        result();
+    }
+
+    if(enemy.hit !== attack.defence) {
+        player2.changeHP(enemy.value);
+        result();
+    }
+})
 
 $arenas.appendChild(createPlayer(player1));
 $arenas.appendChild(createPlayer(player2));
