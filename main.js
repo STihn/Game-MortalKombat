@@ -2,6 +2,7 @@
 const $arenas = document.querySelector('.arenas');
 const $randomButton = document.querySelector('.button');
 const $form = document.querySelector('.control');
+const $chat = document.querySelector('.chat');
 
 const logs = {
     start: 'Часы показывали [time], когда [player1] и [player2] бросили вызов друг другу.',
@@ -117,6 +118,14 @@ function randomDamage(num) {
     return damage;
 }
 
+function renderHP() {
+    const $playerLife = this.elHP();
+    $playerLife.style.width = this.hp + '%';
+    $playerLife.innerText = this.hp;
+    $playerLife.style.textAlign = 'right';
+
+}
+
 function changeHP(damage) {
     const $playerLife = document.querySelector('.player'+ this.player +' .life');
     this.hp -= damage;
@@ -125,20 +134,11 @@ function changeHP(damage) {
         this.hp = 0;
         $playerLife.innerText = this.hp;
     }
-
 }
 
 function elHP() {
     const $playerLife = document.querySelector('.player'+ this.player +' .life');
     return $playerLife;
-}
-
-function renderHP() {
-    const $playerLife = this.elHP();
-    $playerLife.style.width = this.hp + '%';
-    $playerLife.innerText = this.hp;
-    $playerLife.style.textAlign = 'right';
-
 }
 
 function playerWins(name) {
@@ -197,9 +197,7 @@ function enemyAttack() {
     }
 }
 
-$form.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const enemy = enemyAttack();
+function palyerAttack() {
     const attack = {};
 
     for(let item of $form) {
@@ -213,15 +211,32 @@ $form.addEventListener('submit', function(event) {
         }
         item.checked = false;
     }
-    
-    if(attack.hit !== enemy.defence) {
-        player1.changeHP(attack.value);
+
+    return attack;
+}
+
+function generateLogs(type, player1, player2) {
+    const text = logs[type][0].replace('[playerKick]', player1.name).replace('[playerDefence]', player2.name);
+    console.log(text);
+    const element = `<p>${text}</p>`;
+    $chat.insertAdjacentHTML('afterbegin', element)
+}
+
+$form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const enemy = enemyAttack();
+    const player = palyerAttack();
+
+    if(player.hit !== enemy.defence) {
+        player2.changeHP(player.value);
         result();
+        generateLogs('hit', player2, player1)
     }
 
-    if(enemy.hit !== attack.defence) {
-        player2.changeHP(enemy.value);
+    if(enemy.hit !== player.defence) {
+        player1.changeHP(enemy.value);
         result();
+        generateLogs('hit', player1, player2)
     }
 })
 
