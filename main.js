@@ -79,6 +79,13 @@ const HIT = {
 }
 const ATTACK = ['head', 'body', 'foot'];
 
+const days = ['Понедельник', 'Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+window.onload = function() {
+    generateLogs('start', player1, player2);
+}
+
 function createElement(tag, className) {
     $tag = document.createElement(tag);
     if(className) {
@@ -112,7 +119,7 @@ function createPlayer(options) {
     return $player;
 };
 
-function randomDamage(num) {
+function random(num) {
     const damage = Math.ceil(Math.random() * num);
     
     return damage;
@@ -177,20 +184,23 @@ function result() {
 
     if(player1.hp === 0 && player1.hp < player2.hp) {
         $arenas.appendChild(playerWins(player2.name));
+        generateLogs('end', player2, player1)
     } else if(player2.hp === 0 && player2.hp < player1.hp) {
         $arenas.appendChild(playerWins(player1.name));
+        generateLogs('end', player1, player2)
     } else if (player2.hp === 0 && player1.hp === 0) {
         $arenas.appendChild(playerWins());
+        generateLogs()
     }
 };
 
 
 function enemyAttack() {
-    const hit = ATTACK[randomDamage(3)-1];
-    const defence = ATTACK[randomDamage(3)-1];
+    const hit = ATTACK[random(3)-1];
+    const defence = ATTACK[random(3)-1];
 
     return {
-        value: randomDamage(HIT[hit]),
+        value: random(HIT[hit]),
         hit,
         defence
 
@@ -202,7 +212,7 @@ function palyerAttack() {
 
     for(let item of $form) {
         if(item.checked && item.name === 'hit') {
-            attack.value = randomDamage(HIT[item.value]);
+            attack.value = random(HIT[item.value]);
             attack.hit = item.value;
         }
 
@@ -215,11 +225,45 @@ function palyerAttack() {
     return attack;
 }
 
-function generateLogs(type, player1, player2) {
-    const text = logs[type][0].replace('[playerKick]', player1.name).replace('[playerDefence]', player2.name);
-    console.log(text);
-    const element = `<p>${text}</p>`;
-    $chat.insertAdjacentHTML('afterbegin', element)
+function showDate() {
+    const date = new Date();
+    const day = date.getDate();
+    const month = months[date.getMonth() + 1];
+    const dayWeek = days[date.getDay()]
+    const year = date.getFullYear();
+    const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    return `${dayWeek} ${day} ${month} ${year} ${time}`;
+}
+
+function generateLogs(type, player1, player2, value = 0) {
+    let text;
+    let element;
+    switch(type) {
+        case 'start':
+            text = logs[type].replace('[time]',showDate()).replace('[player1]', player1.name).replace('[player2]', player2.name);
+            element = `<p>${text}</p>`;
+            $chat.insertAdjacentHTML('afterbegin', element);
+            break;
+        case 'hit' :
+            text = logs[type][random(17)-1].replace('[playerKick]', player1.name).replace('[playerDefence]', player2.name);
+            element = `<p>${showDate()}, ${text} -${value}hp, ${player2.hp}/100hp</p>`;
+            $chat.insertAdjacentHTML('afterbegin', element);
+            break;
+        case 'defence':
+            text = logs[type][random(7)-1].replace('[playerKick]', player1.name).replace('[playerDefence]', player2.name);
+            element = `<p>${showDate()}, ${text} -${value}hp, ${player2.hp}/100hp</p>`;
+            $chat.insertAdjacentHTML('afterbegin', element);
+            break;
+        case 'end' :
+            text = logs[type][random(3)-1].replace('[playerWins]', player1.name).replace('[playerLose]', player2.name);
+            element = `<p>${showDate()}, ${text}</p>`;
+            $chat.insertAdjacentHTML('afterbegin', element);
+            break;
+        default :
+        element = `<p>${logs.draw}</p>`;
+        $chat.insertAdjacentHTML('afterbegin', element);
+    }
+
 }
 
 $form.addEventListener('submit', function(event) {
@@ -229,15 +273,22 @@ $form.addEventListener('submit', function(event) {
 
     if(player.hit !== enemy.defence) {
         player2.changeHP(player.value);
-        result();
-        generateLogs('hit', player2, player1)
+        generateLogs('hit', player1, player2, player.value);
     }
 
     if(enemy.hit !== player.defence) {
         player1.changeHP(enemy.value);
-        result();
-        generateLogs('hit', player1, player2)
+        generateLogs('hit', player2, player1, player.value);
     }
+
+    if(enemy.hit === player.defence) {
+        generateLogs('defence', player2, player1);
+    }
+
+    if(player.hit === enemy.defence) {
+        generateLogs('defence', player1, player2);
+    }
+    result()
 })
 
 $arenas.appendChild(createPlayer(player1));
